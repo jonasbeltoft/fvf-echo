@@ -1,0 +1,97 @@
+{{ define "dashboard" }}
+{{ template "indexHeader" . }}
+<main id="main" class="container-fluid" style="height: 100vh;">
+	<div class="grid" style="min-height: 550px; height: 50%;">
+		
+		{{ range .LineCharts }} {{ template "line_chart" . }} {{ end }}
+		
+	</div>
+	<a href="/" hx-boost="true" role="button">Back</a>
+
+</main>
+{{ template "indexFooter" . }}
+{{ end }}
+
+{{ define "line_chart" }}
+<article>
+	<header>
+		<h4 style="margin-bottom: 0;">{{ .Title }}</h4>
+	</header>
+	<div style="width: 100%; height: calc(100% - 1rem - 40px);" id="{{ .ID }}"></div>
+	<script>
+		data = [{
+			x: {{ .Lines.Prediction.X }},
+			y: {{ .Lines.Prediction.Y }},
+			mode: 'lines',
+			line: {
+				color: 'rgb(219, 64, 82)',
+				width: 3
+			}
+		},
+		{
+			x: {{ .Lines.Actual.X }},
+			y: {{ .Lines.Actual.Y }},
+			mode: 'lines',
+			line: {
+				color: 'rgb(119, 164, 82)',
+				width: 3
+			}
+		},
+		{
+			x: [{{ .Lines.Marker.X }}],
+  			y: [{{ .Lines.Marker.Y }}],
+ 		 	mode: 'markers',
+  			marker: {
+    			color: 'rgb(119, 164, 82)',
+    			size: 12
+  			}
+		}];
+		layout = {
+			showlegend: false,
+			annotations: [{
+				x: {{ .Lines.Marker.X }},
+				y: {{ .Lines.Marker.Y }},
+				xref: 'x',
+				yref: 'y',
+				text: '{{ .Lines.Marker.Y }}', // sprintf("<b>%s</b>", '{{ .Lines.Marker.Y }}'),
+				font: {
+					size: 20,
+					color: '#00000'
+				},
+				showarrow: true,
+      			arrowhead: 0,
+				arrowcolor: 'rgba(119, 164, 82, 0)',
+      			ax: -50,
+      			ay: 15,
+				borderpad: 3,
+				bgcolor: 'rgb(250, 164, 82)',
+				opacity: 1
+			}],
+			xaxis: {
+				rangemode: 'tozero',
+				zeroline: false,
+				tickformat: "%H:%M",
+				dtick: "3600000"
+			},
+			yaxis: {
+				rangemode: 'tozero',
+				zeroline: false
+			},
+			margin: {
+				l: 20,
+				r: 10,
+				b: 40,
+				t: 10,
+				pad: 4
+			},
+		};
+		config = {
+			responsive: true,
+			autosize: true,
+			resizeHander: true
+		};
+		Plotly.newPlot("{{ .ID }}", data, layout, config);
+		Plotly.Plots.resize("{{ .ID }}");
+	</script>
+</article>
+{{ end }}
